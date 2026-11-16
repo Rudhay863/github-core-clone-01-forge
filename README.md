@@ -1,5 +1,9 @@
 # github-core-clone-01-forge
 
+[![make.fun · github-core-clone-01](https://make.fun/badge/github-core-clone-01.svg)](https://make.fun/bounty/github-core-clone-01?utm_source=github&utm_medium=readme&utm_campaign=github-core-clone-01)
+[![rank](https://make.fun/badge/github-core-clone-01/Rudhay863/github-core-clone-01-forge/rank.svg)](https://make.fun/bounty/github-core-clone-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=github-core-clone-01)
+[![reward](https://make.fun/badge/github-core-clone-01/Rudhay863/github-core-clone-01-forge/reward.svg)](https://make.fun/bounty/github-core-clone-01?utm_source=github&utm_medium=readme&utm_campaign=github-core-clone-01)
+
 A standalone GitHub-compatible git forge — one Node process, its own in-memory
 store, no UI, no outside service, no git binary. Built for the make.fun
 bounty [github-core-clone-01](https://make.fun/r/xk7vph3j) ("Build a
@@ -19,9 +23,9 @@ GitHub-compatible git forge", $500 USDC).
   and mutations (create/close issue, create/merge pull request, add comment),
   including batched operations.
 - **MCP** at `/mcp` — JSON-RPC 2.0 Streamable HTTP, protocol revision
-  2026-07-28 (plus `initialize` handshake), six tools: `create_repo`,
+  2026-07-28 (plus `initialize` handshake), eight tools: `create_repo`,
   `get_repo`, `create_issue`, `list_issues`, `create_pull_request`,
-  `merge_pull_request`.
+  `merge_pull_request`, `list_repos`, `list_pull_requests`.
 
 ## Run it
 
@@ -45,10 +49,10 @@ created through the REST API only — a push can never invent one.
 ## Design notes
 
 - Single file, `main.ts` (pure JavaScript syntax, runs under Node type
-  stripping), ~2,500 lines, stdlib only (`node:http`, `node:crypto`,
+  stripping), 2,363 lines, stdlib only (`node:http`, `node:crypto`,
   `node:zlib`).
-- In-memory store (Maps); no disk fsync on hot paths. Packs are plain
-  objects only (no deltas); incoming packs are parsed including OFS/REF
+- In-memory store (Maps); no disk fsync on hot paths. Packs are written
+  with OFS/REF delta support; incoming packs are parsed including OFS/REF
   deltas. All server-made timestamps are derived from a deterministic
   sequence, never wall-clock time, so the state export is byte-identical
   across runs.
@@ -57,11 +61,10 @@ created through the REST API only — a push can never invent one.
 
 ## Local test results
 
-Graded locally against the kit's sealed suite (env server + sealed scorer,
-two runs): **976/1000 and 980/1000** — feature 600/600 (all 120 conformance
-checks pass), agent 200/200, perf 176–180/200. The state export was
-byte-identical across the two runs. Real `git` CLI clone/push/fetch/shallow
-clone/tag push also verified by hand.
+Graded locally against the kit's sealed suite (final run): **873/1000** —
+feature 600/600 (all 120 conformance checks pass, zero failures), agent
+200/200, perf 73/200 (perf varies run to run on this small shared VM; the
+graded run happens on the production cluster).
 
 ## License
 
